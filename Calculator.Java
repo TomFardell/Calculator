@@ -10,14 +10,19 @@ public class Calculator implements ActionListener {
     static final Color COMPONENT_TEXT_COLOR = new Color(13, 12, 16);
     static final Color BACKGROUND_COLOR = new Color(54, 54, 56);
 
-    private double value = 0;
+    private enum Operator {
+        ADD, SUB, MUL, DIV
+    };
+
+    private double storedValue = 0;
+    private Operator queuedOperator;
 
     private JFrame frame;
 
     private JPanel panel = new JPanel();
     private GridBagConstraints gbc = new GridBagConstraints();
 
-    private JTextField text;
+    private JTextField textField;
     private JButton[] numberButtons = new JButton[10];
     private JButton[] functionButtons = new JButton[8];
     private JButton clrButton, delButton, dotButton, eqlButton, addButton, subButton, mulButton,
@@ -81,9 +86,9 @@ public class Calculator implements ActionListener {
         gbc.weighty = 0.8;
 
         // Text box
-        text = new JTextField(value + "");
-        setupAppearance(text);
-        addGB(text, 0, 0, 4);
+        textField = new JTextField("");
+        setupAppearance(textField);
+        addGB(textField, 0, 0, 4);
 
         // --- Number buttons ---
         // Zero button is placed following a different rule from 1-9
@@ -144,47 +149,56 @@ public class Calculator implements ActionListener {
 
     // Method for if a number button is pressed where n is the number
     private void numberPressed(int n) {
-        System.out.println(n);
+        textField.setText(textField.getText() + n);
     }
 
     // Method for if the clear button is pressed
     private void clrPressed() {
-        System.out.println("Clear");
+        textField.setText("");
+        storedValue = 0;
+        queuedOperator = null;
     }
 
     // Method for if the delete button is pressed
     private void delPressed() {
-        System.out.println("Delete");
+        String text = textField.getText();
+        if (text.length() > 0) {
+            textField.setText(text.substring(0, text.length() - 1));
+        }
     }
 
     // Method for if the dot button is pressed
     private void dotPressed() {
-        System.out.println("Dot");
+        if (!textField.getText().contains(".")) {
+            textField.setText(textField.getText() + ".");
+        }
     }
 
     // Method for if the equals button is pressed
     private void eqlPressed() {
-        System.out.println("Equals");
+        double currentValue = Double.parseDouble(textField.getText());
+
+        if (queuedOperator == Operator.ADD) {
+            textField.setText(storedValue + currentValue + "");
+        } else if (queuedOperator == Operator.SUB) {
+            textField.setText(storedValue - currentValue + "");
+        } else if (queuedOperator == Operator.MUL) {
+            textField.setText(storedValue * currentValue + "");
+        } else if (queuedOperator == Operator.DIV) {
+            if (currentValue == 0) {
+                // Bit of a bodge for now
+                textField.setText("0");
+            } else {
+                textField.setText(storedValue / currentValue + "");
+            }
+        }
     }
 
-    // Method for if the add button is pressed
-    private void addPressed() {
-        System.out.println("Add");
-    }
-
-    // Method for if the subtract button is pressed
-    private void subPressed() {
-        System.out.println("Subtract");
-    }
-
-    // Method for if the multiply button is pressed
-    private void mulPressed() {
-        System.out.println("Multiply");
-    }
-
-    // Method for if the divide button is pressed
-    private void divPressed() {
-        System.out.println("Divide");
+    // Method for if an operator button (+-*/) is pressed
+    private void operatorPressed(Operator operator) {
+        storedValue = Double.parseDouble(textField.getText());
+        queuedOperator = operator;
+        textField.setText("");
     }
 
     public static void main(String[] args) {
@@ -215,17 +229,16 @@ public class Calculator implements ActionListener {
             eqlPressed();
         }
         if (source == addButton) {
-            addPressed();
+            operatorPressed(Operator.ADD);
         }
         if (source == subButton) {
-            subPressed();
+            operatorPressed(Operator.SUB);
         }
         if (source == mulButton) {
-            mulPressed();
+            operatorPressed(Operator.MUL);
         }
         if (source == divButton) {
-            divPressed();
+            operatorPressed(Operator.DIV);
         }
-
     }
 }
