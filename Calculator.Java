@@ -15,7 +15,9 @@ public class Calculator implements ActionListener {
     };
 
     private double storedValue = 0;
-    private Operator queuedOperator;
+    private Operator storedOperator;
+    private boolean errorState = false;
+    private boolean firstOperator = true;
 
     private JFrame frame;
 
@@ -156,7 +158,9 @@ public class Calculator implements ActionListener {
     private void clrPressed() {
         textField.setText("");
         storedValue = 0;
-        queuedOperator = null;
+        storedOperator = null;
+        errorState = false;
+        firstOperator = true;
     }
 
     // Method for if the delete button is pressed
@@ -176,29 +180,59 @@ public class Calculator implements ActionListener {
 
     // Method for if the equals button is pressed
     private void eqlPressed() {
-        double currentValue = Double.parseDouble(textField.getText());
-
-        if (queuedOperator == Operator.ADD) {
-            textField.setText(storedValue + currentValue + "");
-        } else if (queuedOperator == Operator.SUB) {
-            textField.setText(storedValue - currentValue + "");
-        } else if (queuedOperator == Operator.MUL) {
-            textField.setText(storedValue * currentValue + "");
-        } else if (queuedOperator == Operator.DIV) {
-            if (currentValue == 0) {
-                // Bit of a bodge for now
-                textField.setText("0");
-            } else {
-                textField.setText(storedValue / currentValue + "");
+        // This check ensures pressing equals before an operator keeps the display the
+        // same and also ensures equals cannot be pressed multiple times
+        if (!firstOperator) {
+            equate();
+            firstOperator = true;
+            if (!errorState) {
+                textField.setText(formatValue(storedValue));
             }
         }
     }
 
     // Method for if an operator button (+-*/) is pressed
     private void operatorPressed(Operator operator) {
-        storedValue = Double.parseDouble(textField.getText());
-        queuedOperator = operator;
+        storedOperator = operator;
+
+        if (firstOperator) {
+            storedValue = Double.parseDouble(textField.getText());
+            firstOperator = false;
+        } else {
+            equate();
+        }
+
         textField.setText("");
+    }
+
+    // Applies the stored operator to the stored value
+    private void equate() {
+        double currentValue = Double.parseDouble(textField.getText());
+
+        if (storedOperator == Operator.ADD) {
+            storedValue += currentValue;
+        } else if (storedOperator == Operator.SUB) {
+            storedValue -= currentValue;
+        } else if (storedOperator == Operator.MUL) {
+            storedValue *= currentValue;
+        } else if (storedOperator == Operator.DIV) {
+            if (currentValue == 0) {
+                textField.setText("Error");
+                errorState = true;
+            } else {
+                storedValue /= currentValue;
+            }
+        }
+    }
+
+    // Takes a double and returns it as a string. If the double is a whole number,
+    // returns it without any decimal places
+    private static String formatValue(double value) {
+        if (value == (long) value) {
+            return String.format("%d", (long) value);
+        } else {
+            return String.format("%s", value);
+        }
     }
 
     public static void main(String[] args) {
@@ -208,37 +242,45 @@ public class Calculator implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        // Checks the source to see if it is a number button
-        for (int i = 0; i < 10; i++) {
-            if (source == numberButtons[i]) {
-                numberPressed(i);
-            }
-        }
 
-        // Checks the source against each function button
+        // Checks this first as only this button works when errorState is true
         if (source == clrButton) {
             clrPressed();
         }
-        if (source == delButton) {
-            delPressed();
-        }
-        if (source == dotButton) {
-            dotPressed();
-        }
-        if (source == eqlButton) {
-            eqlPressed();
-        }
-        if (source == addButton) {
-            operatorPressed(Operator.ADD);
-        }
-        if (source == subButton) {
-            operatorPressed(Operator.SUB);
-        }
-        if (source == mulButton) {
-            operatorPressed(Operator.MUL);
-        }
-        if (source == divButton) {
-            operatorPressed(Operator.DIV);
+
+        if (!errorState) {
+            // Checks the source to see if it is a number button
+            for (int i = 0; i < 10; i++) {
+                if (source == numberButtons[i]) {
+                    numberPressed(i);
+                }
+            }
+
+            // Checks the source against each function button
+            if (source == dotButton) {
+                dotPressed();
+            }
+            // The following buttons are only valid with something in the text field
+            if (textField.getText().length() > 0 && !textField.getText().equals(".")) {
+                if (source == delButton) {
+                    delPressed();
+                }
+                if (source == eqlButton) {
+                    eqlPressed();
+                }
+                if (source == addButton) {
+                    operatorPressed(Operator.ADD);
+                }
+                if (source == subButton) {
+                    operatorPressed(Operator.SUB);
+                }
+                if (source == mulButton) {
+                    operatorPressed(Operator.MUL);
+                }
+                if (source == divButton) {
+                    operatorPressed(Operator.DIV);
+                }
+            }
         }
     }
 }
