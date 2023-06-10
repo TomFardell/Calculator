@@ -2,13 +2,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Calculator {
+public class Calculator implements ActionListener {
+
+    static final Font BUTTON_FONT = new Font("Consolas", Font.BOLD, 40);
+    static final Font TEXT_FONT = new Font("Consolas", Font.BOLD, 30);
+    static final Color COMPONENT_COLOR = new Color(240, 241, 243);
+    static final Color COMPONENT_TEXT_COLOR = new Color(13, 12, 16);
+    static final Color BACKGROUND_COLOR = new Color(54, 54, 56);
 
     private double value = 0;
 
     private JFrame frame;
 
-    private JPanel panel;
+    private JPanel panel = new JPanel();
     private GridBagConstraints gbc = new GridBagConstraints();
 
     private JTextField text;
@@ -20,45 +26,30 @@ public class Calculator {
     public Calculator() {
         frame = new JFrame();
 
+        setupButtons();
         setupPanel();
 
         frame.add(panel, BorderLayout.CENTER);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         frame.setTitle("Calculator");
         frame.setPreferredSize(new Dimension(400, 600));
         frame.setLocation(760, 240);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
     }
 
-    // Sets up the panel with correct button layout
-    private void setupPanel() {
-        panel = new JPanel();
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        panel.setLayout(new GridBagLayout());
-
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weightx = 0.8;
-        gbc.weighty = 0.8;
-
-        // Text box
-        text = new JTextField(value + "");
-        addGB(text, 0, 0, 4);
-
-        // --- Number buttons ---
-        // Zero button is placed following a different rule from 1-9
-        numberButtons[0] = new JButton("0");
-        addGB(numberButtons[0], 0, 4);
-
-        // 1-9 buttons
-        for (int i = 1; i < 10; i++) {
+    // Sets up the buttons and their ActionListeners
+    private void setupButtons() {
+        // --- Number Buttons ---
+        for (int i = 0; i < 10; i++) {
             numberButtons[i] = new JButton(i + "");
-            addGB(numberButtons[i], (i - 1) % 3, 3 - ((i - 1) / 3));
+            numberButtons[i].addActionListener(this);
+            setupAppearance(numberButtons[i]);
         }
 
-        // --- Function buttons ---
+        // --- Function Buttons ---
         clrButton = new JButton("AC");
         delButton = new JButton("DEL");
         dotButton = new JButton(".");
@@ -70,11 +61,43 @@ public class Calculator {
         functionButtons = new JButton[] { clrButton, delButton, dotButton, eqlButton, addButton,
                 subButton, mulButton, divButton };
 
+        // Adds an ActionListener to each function buttons
+        for (int i = 0; i < 8; i++) {
+            functionButtons[i].addActionListener(this);
+            setupAppearance(functionButtons[i]);
+        }
+    }
+
+    // Sets up the panel with correct button layout
+    private void setupPanel() {
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBackground(BACKGROUND_COLOR);
+
+        panel.setLayout(new GridBagLayout());
+
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 0.8;
+        gbc.weighty = 0.8;
+
+        // Text box
+        text = new JTextField(value + "");
+        setupAppearance(text);
+        addGB(text, 0, 0, 4);
+
+        // --- Number buttons ---
+        // Zero button is placed following a different rule from 1-9
+        addGB(numberButtons[0], 0, 4);
+
+        // 1-9 buttons
+        for (int i = 1; i < 10; i++) {
+            addGB(numberButtons[i], (i - 1) % 3, 3 - ((i - 1) / 3));
+        }
+
+        // --- Function buttons ---
+
         // AC and DEL buttons
         for (int i = 0; i < 2; i++) {
-            gbc.gridx = i * 2;
-            gbc.gridy = 5;
-            gbc.gridwidth = 2;
             addGB(functionButtons[i], i * 2, 5, 2);
         }
 
@@ -103,7 +126,29 @@ public class Calculator {
         addGB(component, x, y, 1);
     }
 
+    // Method to set the appearance of a calculator button
+    private void setupAppearance(JButton button) {
+        button.setFont(BUTTON_FONT);
+        button.setFocusable(false);
+        button.setBackground(COMPONENT_COLOR);
+        button.setForeground(COMPONENT_TEXT_COLOR);
+    }
+
+    // Method to set the appearnce of the text field
+    private void setupAppearance(JTextField textField) {
+        textField.setFont(TEXT_FONT);
+        textField.setFocusable(false);
+        textField.setBackground(COMPONENT_COLOR);
+        textField.setForeground(COMPONENT_TEXT_COLOR);
+    }
+
     public static void main(String[] args) {
         new Calculator();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
     }
 }
