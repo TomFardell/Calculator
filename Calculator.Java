@@ -142,13 +142,90 @@ public class Calculator implements ActionListener {
         textField.setForeground(COMPONENT_TEXT_COLOR);
     }
 
+    // Method for if a number button is pressed where n is the number
+    private void numberPressed(int n) {
+        System.out.println(n);
+    }
+
+    // Method for if the clear button is pressed
+    private void clrPressed() {
+        System.out.println("Clear");
+    }
+
+    // Method for if the delete button is pressed
+    private void delPressed() {
+        System.out.println("Delete");
+    }
+
+    // Method for if the dot button is pressed
+    private void dotPressed() {
+        System.out.println("Dot");
+    }
+
+    // Method for if the equals button is pressed
+    private void eqlPressed() {
+        System.out.println("Equals");
+    }
+
+    // Method for if the add button is pressed
+    private void addPressed() {
+        System.out.println("Add");
+    }
+
+    // Method for if the subtract button is pressed
+    private void subPressed() {
+        System.out.println("Subtract");
+    }
+
+    // Method for if the multiply button is pressed
+    private void mulPressed() {
+        System.out.println("Multiply");
+    }
+
+    // Method for if the divide button is pressed
+    private void divPressed() {
+        System.out.println("Divide");
+    }
+
     public static void main(String[] args) {
         new Calculator();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
+        Object source = e.getSource();
+        // Checks the source to see if it is a number button
+        for (int i = 0; i < 10; i++) {
+            if (source == numberButtons[i]) {
+                numberPressed(i);
+            }
+        }
+
+        // Checks the source against each function button
+        if (source == clrButton) {
+            clrPressed();
+        }
+        if (source == delButton) {
+            delPressed();
+        }
+        if (source == dotButton) {
+            dotPressed();
+        }
+        if (source == eqlButton) {
+            eqlPressed();
+        }
+        if (source == addButton) {
+            addPressed();
+        }
+        if (source == subButton) {
+            subPressed();
+        }
+        if (source == mulButton) {
+            mulPressed();
+        }
+        if (source == divButton) {
+            divPressed();
+        }
+
     }
 }
