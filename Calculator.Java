@@ -243,7 +243,7 @@ public class Calculator implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
 
-        // Checks this first as only this button works when errorState is true
+        // Checks this first as only this button should work when errorState is true
         if (source == clrButton) {
             clrPressed();
         }
@@ -279,6 +279,22 @@ public class Calculator implements ActionListener {
                 }
                 if (source == divButton) {
                     operatorPressed(Operator.DIV);
+                }
+            }
+
+            // Allows the user to change their operator if the text field is still empty
+            if (textField.getText().length() == 0) {
+                if (source == addButton) {
+                    storedOperator = Operator.ADD;
+                }
+                if (source == subButton) {
+                    storedOperator = Operator.SUB;
+                }
+                if (source == mulButton) {
+                    storedOperator = Operator.MUL;
+                }
+                if (source == divButton) {
+                    storedOperator = Operator.DIV;
                 }
             }
         }
